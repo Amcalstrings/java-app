@@ -8,7 +8,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # run stage
-FROM eclipse-temurin:17-jdk-slim
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
