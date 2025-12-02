@@ -13,6 +13,30 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+        //     environment {
+        //         SONAR_TOKEN = credentials('sonarcloudinfo')
+        //     }
+        //     steps {
+        //         withSonarQubeEnv('sonarqube') {
+        //             sh """
+        //                 ${SONAR_SCANNER}/bin/sonar-scanner \
+        //                 -Dsonar.projectKey=my-java-app \
+        //                 -Dsonar.sources=src \
+        //                 -Dsonar.java.binaries=target \
+        //                 -Dsonar.host.url=$SONARQUBE_URL \
+        //                 -Dsonar.login=$SONAR_TOKEN
+        //             """
+        //         }
+        stage('CompileandRunSonarAnalysis'){
+            steps{
+                withCredentials([string(credentialsId: 'sonarcloudinfo', variable: 'sonarcloudinfo')]) {
+                    sh 'mvn clean verify sonar:sonar -Dsonar.login=$caleb-token -Dsonar.organization=caleb-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=caleb-org' 
+                }
+            }
+        }
+        }
+
         stage('Build Java Application') {
             steps {
                 sh 'mvn clean package -DskipTests'
@@ -27,9 +51,13 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'DOCKER_LOGIN', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'DOCKER_LOGIN',
+                    usernameVariable: 'USERNAME',
+                    passwordVariable: 'PASSWORD'
+                )]) {
                     sh '''
-                        echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
+                        echo $PASSWORD | docker login -u $USERNAME --password-stdin
                         docker push amcal/my-java-app:v1
                         docker logout
                     '''
@@ -40,10 +68,11 @@ pipeline {
 
     post {
         success {
-            echo '✅ Build and Docker image push successful!'
+            echo '✅ Build and Docker image-push successful'
         }
         failure {
-            echo '❌ Build failed. Check logs above.'
+            echo '❌ Build failed. Check the logs for details.'
         }
     }
+
 }
