@@ -30,8 +30,8 @@ pipeline {
         //         }
         stage('CompileandRunSonarAnalysis') {
             steps{
-                withCredentials([string(credentialsId: 'sonarcloudinfo', variable: 'sonarcloudinfo')]) {
-                    sh 'mvn clean verify sonar:sonar -Dsonar.login=$caleb-token -Dsonar.organization=caleb-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=caleb-org' 
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=caleb-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=caleb-org_java-app' 
                 }
             }
         }
