@@ -43,6 +43,18 @@ pipeline {
             }
         }
 
+        stage('Snyk Scan') {
+            environment{
+                SNYK_TOKEN = credentials('SNYK_TOKEN')
+            }
+            steps {
+                sh """
+                    snyk auth $SNKY_TOKEN
+                    snyk test --all-projects
+                """
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t amcal/my-java-app:v1 .'
