@@ -52,10 +52,12 @@ pipeline {
                 SNYK_TOKEN = credentials('SNYK_TOKEN')
             }
             steps {
+                dir("${WORKSPACE}"){
                 sh """
                     mvn dependency:tree -DoutputType=dot
                     snyk test --all-projects --severity-threshold=medium
                 """
+                }
             }
         }
 
