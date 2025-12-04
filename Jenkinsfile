@@ -12,30 +12,14 @@ pipeline {
                 checkout scm
             }
         }
-
         
-        //     environment {
-        //         SONAR_TOKEN = credentials('sonarcloudinfo')
-        //     }
-        //     steps {
-        //         withSonarQubeEnv('sonarqube') {
-        //             sh """
-        //                 ${SONAR_SCANNER}/bin/sonar-scanner \
-        //                 -Dsonar.projectKey=my-java-app \
-        //                 -Dsonar.sources=src \
-        //                 -Dsonar.java.binaries=target \
-        //                 -Dsonar.host.url=$SONARQUBE_URL \
-        //                 -Dsonar.login=$SONAR_TOKEN
-        //             """
-        //         }
-        stage('CompileandRunSonarAnalysis') {
-            steps{
+        stage ('RunSonarCloudAnalysis') {
+            steps {
                 withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                    sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=caleb-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=caleb-org_java-app' 
+                    sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=caleb-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=caleb-org_my-java-app'
                 }
             }
         }
-        
 
         stage('Build Java Application') {
             steps {
@@ -43,24 +27,6 @@ pipeline {
             }
         }
 
-        stage('Snyk Scan') {
-            tools {
-                jdk 'jdk17'
-                maven 'maven3'
-                }
-            environment{
-                SNYK_TOKEN = credentials('SNYK_TOKEN')
-            }
-            steps {
-                dir("${WORKSPACE}"){
-                sh """
-                    chmod +x mvnw
-                    ./mvnw dependency:tree -DoutputType=dot
-                    snyk test --all-projects --severity-threshold=medium || true
-                """
-                }
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
