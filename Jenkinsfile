@@ -49,7 +49,7 @@ pipeline {
             }
             steps {
                 sh """
-                    snyk auth $SNKY_TOKEN
+                    snyk auth $SNYK_TOKEN
                     snyk test --all-projects
                 """
             }
